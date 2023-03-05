@@ -8,6 +8,8 @@ public sealed class NamespaceGenerator : ISourceGenerator
     [StringSyntax(StringSyntaxAttribute.Uri), UriString]
     const string File = "Emik.SourceGenerators.Tattoo.g.cs";
 
+    const string Global = "global::";
+
     /// <inheritdoc />
     [CLSCompliant(false)]
     public void Execute(GeneratorExecutionContext context) => context.AddSource(File, Imports(context.Compilation));
@@ -33,10 +35,10 @@ public sealed class NamespaceGenerator : ISourceGenerator
            .Select(x => x.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
            .Distinct(StringComparer.Ordinal)
            .Omit(string.IsNullOrWhiteSpace)
-           .Where(x => x is not "<global namespace>")
+           .Omit(x => x.Contains('<') || x.Contains('>'))
+           .Select(x => x.StartsWith(Global) ? x[Global.Length..] : x)
            .OrderByDescending(x => x.StartsWith("System"))
            .ThenBy(x => x, StringComparer.Ordinal)
-           .Select(x => x.TrimStart("global::"))
            .For(x => sb.Append("global using ").Append(x).Append(";\n"))
            .For(x => sb.Append("\nnamespace ").Append(x).Append(" { }\n"));
 
