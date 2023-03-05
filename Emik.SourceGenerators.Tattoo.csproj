@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Description>Source generates a file that imports all namespaces.</Description>
+        <RepositoryUrl>https://github.com/Emik03/Emik.SourceGenerators.Tattoo</RepositoryUrl>
+        <PackageTags>Namespace Import Global Using Source Generator Analyzer Roslyn</PackageTags>
+    </PropertyGroup>
+</Project>
