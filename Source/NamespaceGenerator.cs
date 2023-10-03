@@ -22,21 +22,15 @@ public sealed class NamespaceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(generation, Generate);
     }
 
-    static void Generate(SourceProductionContext a, (Compilation Left, string? Right) x)
+    static void Generate(SourceProductionContext context, (Compilation, string?) tuple)
     {
-        if (x.Right is null)
-            return;
-
-        var contents = Imports(x.Left);
-        a.AddSource(x.Right, contents);
+        if (tuple is (var compilation, { } filePath) && Imports(compilation) is var contents)
+            context.AddSource(filePath, contents);
     }
 
-    [MustUseReturnValue]
-    static bool HasProjectFile(string x) => Directory.EnumerateFiles(x).Any(x => x.EndsWith(".csproj"));
-
     [Pure]
-    static bool IsOther(ReadOnlySpan<char> span) =>
-        (span.LastIndexOfAny('/', '\\') is var index and not -1 ? span[++index..] : span) is not FileName;
+    static bool IsFileNameGeneratedGlobalUsing(scoped in ReadOnlySpan<char> filePath) =>
+        (filePath.LastIndexOfAny('/', '\\') is var index and not -1 ? filePath[++index..] : filePath) is not FileName;
 
     [MustUseReturnValue]
     static string Imports(in Compilation compilation)
@@ -66,15 +60,11 @@ public sealed class NamespaceGenerator : IIncrementalGenerator
     }
 
     [MustUseReturnValue]
-    static string? FilePath(Compilation x, CancellationToken _) =>
-        x.SyntaxTrees.Any(x => IsOther(x.FilePath.AsSpan()))
+    static string? FilePath(Compilation compilation, CancellationToken _) =>
+        compilation.SyntaxTrees.Any(x => IsFileNameGeneratedGlobalUsing(x.FilePath.AsSpan()))
             ? null
-            : x.SyntaxTrees
-               .SelectMany(DirectoryNames)
+            : compilation.SyntaxTrees
+               .SelectMany(x => Path.GetDirectoryName(x.FilePath).FindSmallPathToNull(Path.GetDirectoryName))
                .Distinct(StringComparer.Ordinal)
-               .FirstOrDefault(HasProjectFile);
-
-    [Pure]
-    static IEnumerable<string> DirectoryNames(SyntaxTree x) =>
-        Path.GetDirectoryName(x.FilePath).FindSmallPathToNull(Path.GetDirectoryName);
+               .FirstOrDefault(x => Directory.EnumerateFiles(x).Any(x => x.EndsWith(".csproj")));
 }
