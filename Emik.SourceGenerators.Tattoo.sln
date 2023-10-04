@@ -1,0 +1,16 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emik.SourceGenerators.Tattoo", "Emik.SourceGenerators.Tattoo.csproj", "{E28940F8-FA80-407C-A73F-6063F7B1362A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E28940F8-FA80-407C-A73F-6063F7B1362A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E28940F8-FA80-407C-A73F-6063F7B1362A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E28940F8-FA80-407C-A73F-6063F7B1362A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E28940F8-FA80-407C-A73F-6063F7B1362A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+
