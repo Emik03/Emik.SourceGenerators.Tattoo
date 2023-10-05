@@ -23,8 +23,9 @@ public sealed class NamespaceGenerator : ISourceGenerator
 
     static void MakeFile(Compilation compilation)
     {
-        if (ProjectPath(compilation) is { } path &&
-            Imports(compilation) is var contents)
+        if (ProjectPath(compilation) is { } project &&
+            Imports(compilation) is var contents &&
+            Path.Combine(project, FileName) is var path)
             File.WriteAllText(path, contents);
     }
 
