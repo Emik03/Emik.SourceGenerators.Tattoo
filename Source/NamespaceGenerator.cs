@@ -30,7 +30,7 @@ public sealed class NamespaceGenerator : ISourceGenerator
 
     [Pure]
     static bool IsPathGeneratedGlobalUsing(scoped in ReadOnlySpan<char> filePath) =>
-        (filePath.LastIndexOfAny('/', '\\') is var index and not -1 ? filePath[++index..] : filePath) is not FileName;
+        (filePath.LastIndexOfAny('/', '\\') is var index and not -1 ? filePath[++index..] : filePath) is FileName;
 
     [MustUseReturnValue]
     static string Imports(in Compilation compilation)
