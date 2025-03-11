@@ -1,10 +1,36 @@
 // SPDX-License-Identifier: MPL-2.0
 namespace Emik.SourceGenerators.Tattoo;
 
+using EqType = (ImmutableArray<MetadataReference> Left, Compilation Right);
+
 /// <summary>Creates global imports of every namespace of the current project.</summary>
 [Generator]
-public sealed class NamespaceGenerator : ISourceGenerator
+public sealed class NamespaceGenerator : ISourceGenerator, IIncrementalGenerator
 {
+    sealed class Eq : IEqualityComparer<EqType>, IEqualityComparer<MetadataReference>
+    {
+        public static Eq Instance { get; } = new();
+
+        public bool Equals(EqType x, EqType y) => x.Left.GuardedSequenceEqual(y.Left, this);
+
+        public int GetHashCode(EqType obj)
+        {
+            var array = obj.Left;
+            var hash = array.Length;
+
+            for (var i = 0; i < array.Length; i++)
+                hash ^= unchecked(StringComparer.Ordinal.GetHashCode(array[i].Display.OrEmpty()) * Primes.Index(^i));
+
+            return hash;
+        }
+
+        public bool Equals(MetadataReference? x, MetadataReference? y) =>
+            ReferenceEquals(x, y) ||
+            x is not null && y is not null && x.Display == y.Display && x.Properties.Equals(y.Properties);
+
+        public int GetHashCode(MetadataReference obj) => HashCode.Combine(obj.Properties, obj.Display);
+    }
+
     const string
         FileName = "GlobalUsings.g.cs",
         Global = "global::",
@@ -20,6 +46,15 @@ public sealed class NamespaceGenerator : ISourceGenerator
 
     /// <inheritdoc />
     void ISourceGenerator.Execute(GeneratorExecutionContext context) => MakeFile(context.Compilation);
+
+    /// <inheritdoc />
+    void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var a = context.MetadataReferencesProvider.Collect()
+           .Combine(context.CompilationProvider)
+           .WithComparer(Eq.Instance)
+           .Select((x, _) => x.Right);
+    }
 
     static void MakeFile(Compilation compilation)
     {
