@@ -7,4 +7,7 @@
         <RepositoryUrl>https://github.com/Emik03/Emik.SourceGenerators.Tattoo</RepositoryUrl>
         <PackageTags>Namespace Import Global Using Source Generator Analyzer Roslyn</PackageTags>
     </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="$(Morsels)/Compile/**/*.cs"/>
+    </ItemGroup>
 </Project>
